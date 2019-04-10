@@ -168,7 +168,7 @@ class DynamicRoutingManager:
 
             if network["found"] is False:
                 # Look in system
-                for route in subprocess.Popen("ip route show {0}".format(network["network"]), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0].split('\n'):
+                for route in subprocess.Popen("ip route show {0}".format(network["network"]), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0].decode("utf-8").split('\n'):
                     match_dev = re.search( self.ip_dev_regex, route )
                     if match_dev:
                         dev = match_dev.group(1)
@@ -178,7 +178,7 @@ class DynamicRoutingManager:
                             interfaces_routes_to_add[dev].append(network["network"])
 
                 for dev in list(interfaces_routes_to_add.keys()):
-                    for addr in subprocess.Popen("ip addr show dev {0}".format(dev), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0].split('\n'):
+                    for addr in subprocess.Popen("ip addr show dev {0}".format(dev), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0].decode("utf-8").split('\n'):
                         match_addr = re.search( self.ip_addr_regex, addr )
                         if match_addr:
                             dev_address, dev_prefix = match_addr.group(1).split('/')

@@ -16,3 +16,4 @@ sync.registrar.register_operation("apt-update",         None, ["apt-get update",
 sync.registrar.register_operation("restart-pyconnector",None, ["ps awwwux | grep -q [p]yconnector && systemctl restart untangle-pyconnector", "/usr/bin/systemctl-wait"],                                              53, None)
 sync.registrar.register_operation("geoip-update",       None, ["/usr/bin/systemctl-wait"],                                              54, None)
 sync.registrar.register_operation("restart-wireguard",  None, ["/usr/bin/systemctl-wait"],                                              55, None)
+sync.registrar.register_operation("logrotate-test",     None, ["/usr/bin/systemctl-wait"],                                              56, None)

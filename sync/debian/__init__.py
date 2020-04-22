@@ -30,5 +30,6 @@ from . import apt_manager
 from . import pyconnector_manager
 from . import geoip_manager
 from . import wireguard_manager
+from . import logrotate_manager
 
 from . import operations

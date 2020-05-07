@@ -1,6 +1,7 @@
 """nftables_util provides nftable utility functions"""
 import re
 import copy
+import uuid
 
 # long functions (case statements etc)
 # pylint: disable=too-many-branches
@@ -768,6 +769,22 @@ def create_id_seq(parent, array, idSeqName, idName):
 
         parent[idSeqName] = seq
 
+def verify_guid(array, idName):
+    """ verify_guid verifies that we have converted the rule IDs to GUIDs, and also adds a new guid in case an ID was passed without one
+    """
+    if array:
+        for item in array:
+            # If the rule is missing an ID or is an int type, gen a new GUID
+            if(item.get(idName) is None or test_int(item.get(idName))):
+                item[idName] = uuid.uuid4().__str__()
+
+def test_int(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
+
 def clean_rule_actions(parent, array, tableName=None):
     """ clean_rule_actions is used to massage WAN_POLICY and DROP action rule types, as well as INTERFACE_TYPE conditions
         :param parent: (container) the parent container of the array that should hold the idSeqName attribute and value
@@ -782,13 +799,13 @@ def clean_rule_actions(parent, array, tableName=None):
                     item['logs'] = [
                         {
                             "type": "NFLOG",
-                            "prefix": "{\'type\':\'rule\',\'table\':\'wan-routing\',\'chain\':\'%s\',\'ruleId\':%d,\'action\':\'WAN_POLICY\',\'policy\':%d} " % (parent.get('name'), item.get('ruleId'), action.get('policy')),
+                            "prefix": "{\'type\':\'rule\',\'table\':\'wan-routing\',\'chain\':\'%s\',\'ruleId\':%s,\'action\':\'WAN_POLICY\',\'policy\':%d} " % (parent.get('name'), item.get('ruleId'), action.get('policy')),
                         },
                         {
                             "type": "DICT",
                             "field": "wan_rule_id",
                             "field_type": "INT",
-                            "value": "%d" % item.get('ruleId'),
+                            "value": "%s" % item.get('ruleId'),
                         }
                     ]
 

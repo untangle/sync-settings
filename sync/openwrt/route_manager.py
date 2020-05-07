@@ -61,10 +61,10 @@ class RouteManager(Manager):
     def sanitize_settings(self, settings_file):
         """sanitizes settings"""
         wan = settings_file.settings['wan']
-        nftables_util.create_id_seq(wan, wan.get('policies'), 'policyIdSeq', 'policyId')
+        nftables_util.verify_guid(wan.get('policies'), 'policyId')
 
         for chain in wan.get('policy_chains'):
-            nftables_util.create_id_seq(chain, chain.get('rules'), 'ruleIdSeq', 'ruleId')
+            nftables_util.verify_guid(chain.get('rules'), 'ruleId')
             nftables_util.clean_rule_actions(chain, chain.get('rules'))
 
 
@@ -254,27 +254,27 @@ class RouteManager(Manager):
                     interfaceName = network_util.get_interface_name(settings, get_interface_by_id(settings, interfaceId))
                     criteria = policy.get('criteria')
                     if criteria is None:
-                        file.write("up policy-%d %d %s &\n" % (policyId, interfaceId, interfaceName))
+                        file.write("up policy-%s %d %s &\n" % (policyId, interfaceId, interfaceName))
                     else:
                         down_by_attribute = False
                         for criterion in criteria:
                             if criterion.get('type') == 'ATTRIBUTE':
                                 if criterion.get('attribute') == 'VPN':
                                     if intf.get('type') != 'OPENVPN' and intf.get('type') != 'WIREGUARD':
-                                        file.write("attribute policy-%d %d %s VPN down &\n" % (policyId, interfaceId, interfaceName))
+                                        file.write("attribute policy-%s %d %s VPN down &\n" % (policyId, interfaceId, interfaceName))
                                         down_by_attribute = True
                                     else:
-                                        file.write("attribute policy-%d %d %s VPN up &\n" % (policyId, interfaceId, interfaceName))
+                                        file.write("attribute policy-%s %d %s VPN up &\n" % (policyId, interfaceId, interfaceName))
                                 elif criterion.get('attribute') == 'NAME':
                                     name_contains = criterion.get('name_contains')
                                     if name_contains not in interfaceName:
-                                        file.write("attribute policy-%d %d %s NAME %s down &\n" % (policyId, interfaceId, interfaceName, name_contains))
+                                        file.write("attribute policy-%s %d %s NAME %s down &\n" % (policyId, interfaceId, interfaceName, name_contains))
                                         down_by_attribute = True
                                     else:
-                                        file.write("attribute policy-%d %d %s NAME %s up &\n" % (policyId, interfaceId, interfaceName, name_contains))
+                                        file.write("attribute policy-%s %d %s NAME %s up &\n" % (policyId, interfaceId, interfaceName, name_contains))
 
                         if down_by_attribute is False:
-                            file.write("up policy-%d %d %s &\n" % (policyId, interfaceId, interfaceName))
+                            file.write("up policy-%s %d %s &\n" % (policyId, interfaceId, interfaceName))
                             for criterion in criteria:
                                 if criterion.get('type') == 'METRIC':
                                     metric_value = criterion.get('metric_value')
@@ -303,7 +303,7 @@ class RouteManager(Manager):
                                     elif metric_op == ">=":
                                         op="ge"
 
-                                    file.write("metric policy-%d %d %s %s %s %s %d &\n" % (policyId, interfaceId, interfaceName, stat_name, metric_name, op, metric_value))
+                                    file.write("metric policy-%s %d %s %s %s %s %d &\n" % (policyId, interfaceId, interfaceName, stat_name, metric_name, op, metric_value))
 
                                 elif criterion.get('type') == 'CONNECTIVITY':
                                     test_type = criterion.get('connectivityTestType')
@@ -319,10 +319,10 @@ class RouteManager(Manager):
                                         test="arp"
                                     elif test_type == "DNS":
                                         test="dns"
-                                    file.write("test policy-%d %d %s %s %d %d %d %s &\n" % (policyId, interfaceId, interfaceName, test, interval, timeout, threshold, target))
+                                    file.write("test policy-%s %d %s %s %d %d %d %s &\n" % (policyId, interfaceId, interfaceName, test, interval, timeout, threshold, target))
 
                 if policy.get('type') == "SPECIFIC_WAN":
-                    file.write("specific_wan policy-%d %d &\n" % (policyId, interfaceId))
+                    file.write("specific_wan policy-%s %d &\n" % (policyId, interfaceId))
                 elif policy.get('type') == "BEST_OF":
                     best_of_metric = policy.get('best_of_metric')
                     if best_of_metric == "LOWEST_LATENCY":
@@ -341,10 +341,10 @@ class RouteManager(Manager):
                         stat_name = "packet_loss"
                         metric_name = "1_minute"
                         op="le"
-                    file.write("best_of policy-%d %s %s %s &\n" % (policyId, stat_name, metric_name, op))
+                    file.write("best_of policy-%s %s %s %s &\n" % (policyId, stat_name, metric_name, op))
                 elif policy.get('type') == "BALANCE":
                     algorithm = policy.get('balance_algorithm')
-                    file.write("balance policy-%d %s &\n" % (policyId, algorithm))
+                    file.write("balance policy-%s %s &\n" % (policyId, algorithm))
 
         file.flush()
         file.close()
@@ -444,11 +444,11 @@ class RouteManager(Manager):
         for policy in policies:
             policyId = policy.get('policyId')
 
-            file.write("add set ip wan-routing policy-%d-table { type ipv4_addr . ipv4_addr; flags timeout; }\n" % policyId)
-            file.write("flush set ip wan-routing policy-%d-table\n" % policyId)
-            file.write("add chain ip wan-routing route-to-policy-%d\n" % policyId)
-            file.write("add rule ip wan-routing route-to-policy-%d return comment \"policy disabled\"\n" % policyId)
-            file.write("add rule ip wan-routing route-via-cache ip saddr . ip daddr @policy-%d-table dict sessions ct id wan_policy long_string set policy-%d-cache log prefix \"{\'type\':\'rule\',\'table\':\'wan-routing\',\'chain\':\'route-via-cache\',\'ruleId\':-1,\'action\':\'WAN_POLICY\',\'policy\':%d}\" group 0\n" % (policyId, policyId, policyId))
+            file.write("add set ip wan-routing policy-%s-table { type ipv4_addr . ipv4_addr; flags timeout; }\n" % policyId)
+            file.write("flush set ip wan-routing policy-%s-table\n" % policyId)
+            file.write("add chain ip wan-routing route-to-policy-%s\n" % policyId)
+            file.write("add rule ip wan-routing route-to-policy-%s return comment \"policy disabled\"\n" % policyId)
+            file.write("add rule ip wan-routing route-via-cache ip saddr . ip daddr @policy-%s-table dict sessions ct id wan_policy long_string set policy-%s-cache log prefix \"{\'type\':\'rule\',\'table\':\'wan-routing\',\'chain\':\'route-via-cache\',\'ruleId\':-1,\'action\':\'WAN_POLICY\',\'policy\':%s}\" group 0\n" % (policyId, policyId, policyId))
             file.write("\n")
 
         enabled_policy_rules = []
@@ -461,13 +461,13 @@ class RouteManager(Manager):
                     continue
                 else:
                     ruleId = rule.get('ruleId')
-                    file.write("add set ip wan-routing rule-%d-table { type ipv4_addr . ipv4_addr; flags timeout; }\n" % ruleId)
-                    file.write("flush set ip wan-routing rule-%d-table\n" % ruleId)
-                    file.write("add chain ip wan-routing update-rule-%d-table\n" % ruleId)
-                    file.write("add rule ip wan-routing update-rule-%d-table set update ip saddr . ip daddr timeout 1m @rule-%d-table\n" % (ruleId, ruleId))
-                    file.write("add rule ip wan-routing update-rule-%d-table set update ip daddr . ip saddr timeout 1m @rule-%d-table\n" % (ruleId, ruleId))
-                    file.write("add rule ip wan-routing route-via-cache ip saddr . ip daddr @rule-%d-table log prefix \"{\'type\':\'rule\',\'table\':\'wan-routing\',\'chain\':\'%s\',\'ruleId\':%d,\'action\':\'WAN_POLICY\'}\" group 0\n" % (ruleId, chain_name, ruleId))
-                    enabled_policy_rules.append("%d : jump update-rule-%d-table" % (ruleId, ruleId))
+                    file.write("add set ip wan-routing rule-%s-table { type ipv4_addr . ipv4_addr; flags timeout; }\n" % ruleId)
+                    file.write("flush set ip wan-routing rule-%s-table\n" % ruleId)
+                    file.write("add chain ip wan-routing update-rule-%s-table\n" % ruleId)
+                    file.write("add rule ip wan-routing update-rule-%s-table set update ip saddr . ip daddr timeout 1m @rule-%s-table\n" % (ruleId, ruleId))
+                    file.write("add rule ip wan-routing update-rule-%s-table set update ip daddr . ip saddr timeout 1m @rule-%s-table\n" % (ruleId, ruleId))
+                    file.write("add rule ip wan-routing route-via-cache ip saddr . ip daddr @rule-%s-table log prefix \"{\'type\':\'rule\',\'table\':\'wan-routing\',\'chain\':\'%s\',\'ruleId\':%s,\'action\':\'WAN_POLICY\'}\" group 0\n" % (ruleId, chain_name, ruleId))
+                    enabled_policy_rules.append("%d : jump update-rule-%s-table" % (ruleId, ruleId))
 
             file.write(nftables_util.chain_create_cmd(chain, "ip", None, "wan-routing") + "\n")
             file.write(nftables_util.chain_rules_cmds(chain, "ip", None, "wan-routing") + "\n")

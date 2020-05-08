@@ -22,7 +22,7 @@ class TableManager(Manager):
         # Set the rule_id to unique values of every chain
         for table in ['filter', 'port-forward', 'nat', 'access', 'web-filter', 'captive-portal', 'shaping']:
             for chain in settings_file.settings['firewall']['tables'][table]['chains']:
-                nftables_util.verify_guid(chain.get('rules'), 'ruleId')
+                nftables_util.verify_guid(chain.get('rules'), 'ruleId', relatedChains=None)
                 nftables_util.clean_rule_actions(chain, chain.get('rules'), table)
 
     def create_settings(self, settings_file, prefix, delete_list, filename):

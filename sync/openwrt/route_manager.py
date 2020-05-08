@@ -61,10 +61,10 @@ class RouteManager(Manager):
     def sanitize_settings(self, settings_file):
         """sanitizes settings"""
         wan = settings_file.settings['wan']
-        nftables_util.verify_guid(wan.get('policies'), 'policyId')
+        nftables_util.verify_guid(wan.get('policies'), 'policyId', wan.get('policy_chains'))
 
         for chain in wan.get('policy_chains'):
-            nftables_util.verify_guid(chain.get('rules'), 'ruleId')
+            nftables_util.verify_guid(chain.get('rules'), 'ruleId', relatedChains=None)
             nftables_util.clean_rule_actions(chain, chain.get('rules'))
 
 

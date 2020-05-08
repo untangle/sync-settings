@@ -769,14 +769,34 @@ def create_id_seq(parent, array, idSeqName, idName):
 
         parent[idSeqName] = seq
 
-def verify_guid(array, idName):
+def verify_guid(array, idName, relatedChains):
     """ verify_guid verifies that we have converted the rule IDs to GUIDs, and also adds a new guid in case an ID was passed without one
+        :param array:
+        :param idName:
     """
     if array:
         for item in array:
-            # If the rule is missing an ID or is an int type, gen a new GUID
+            # If the item is missing an ID or is an int type, gen a new GUID
             if(item.get(idName) is None or test_int(item.get(idName))):
-                item[idName] = uuid.uuid4().__str__()
+                # Check if this property even exists
+                if idName not in item:
+                    # gen a new ID, this is something new
+                    item[idName] = uuid.uuid4().__str__()
+                else:
+                    #store old ID for validating update potential 
+                    oldId = item[idName]
+                    item[idName] = uuid.uuid4().__str__()
+
+                    #if there are related policy chains, AND the old ID was an INT, we also need to fix the policy actions
+                    if relatedChains and test_int(oldId):
+                        #Get any chains using the old WAN_POLICY ID
+                        for chain in relatedChains:
+                            for rule in chain.get("rules"):
+                                action = rule.get("action")
+                                if action:
+                                    if test_int(action.get("policy")) and action.get("type") == "WAN_POLICY" and action.get("policy") == oldId:
+                                        #Set it to the new item's WAN_POLICY GUID
+                                        action["policy"] = item[idName]
 
 def test_int(s):
     try:

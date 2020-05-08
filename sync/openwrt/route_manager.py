@@ -448,7 +448,7 @@ class RouteManager(Manager):
             file.write("flush set ip wan-routing policy-%s-table\n" % policyId)
             file.write("add chain ip wan-routing route-to-policy-%s\n" % policyId)
             file.write("add rule ip wan-routing route-to-policy-%s return comment \"policy disabled\"\n" % policyId)
-            file.write("add rule ip wan-routing route-via-cache ip saddr . ip daddr @policy-%s-table dict sessions ct id wan_policy long_string set policy-%s-cache log prefix \"{\'type\':\'rule\',\'table\':\'wan-routing\',\'chain\':\'route-via-cache\',\'ruleId\':\'-1\',\'action\':\'WAN_POLICY\',\'policy\':\'%s\'}\" group 0\n" % (policyId, policyId, policyId))
+            file.write("add rule ip wan-routing route-via-cache ip saddr . ip daddr @policy-%s-table dict sessions ct id wan_policy long_string set policy-%s-cache log prefix \"{\'type\':\'rule\',\'table\':\'wan-routing\',\'chain\':\'route-via-cache\',\'ruleId\':\'-1\',\'action\':\'WAN_POLICY\',\'policy\':\'%s\'}\" group 0\n" % (policyId, policyId, policyId[:8]))
             file.write("\n")
 
         enabled_policy_rules = []
@@ -466,14 +466,19 @@ class RouteManager(Manager):
                     file.write("add chain ip wan-routing update-rule-%s-table\n" % ruleId)
                     file.write("add rule ip wan-routing update-rule-%s-table set update ip saddr . ip daddr timeout 1m @rule-%s-table\n" % (ruleId, ruleId))
                     file.write("add rule ip wan-routing update-rule-%s-table set update ip daddr . ip saddr timeout 1m @rule-%s-table\n" % (ruleId, ruleId))
-                    file.write("add rule ip wan-routing route-via-cache ip saddr . ip daddr @rule-%s-table log prefix \"{\'type\':\'rule\',\'table\':\'wan-routing\',\'chain\':\'%s\',\'ruleId\':\'%s\',\'action\':\'WAN_POLICY\'}\" group 0\n" % (ruleId, chain_name, ruleId))
-                    enabled_policy_rules.append("\"%s\": jump update-rule-%s-table" % (ruleId, ruleId))
+                    file.write("add rule ip wan-routing route-via-cache ip saddr . ip daddr @rule-%s-table log prefix \"{\'type\':\'rule\',\'table\':\'wan-routing\',\'chain\':\'%s\',\'ruleId\':\'%s\',\'action\':\'WAN_POLICY\'}\" group 0\n" % (ruleId, chain_name, ruleId[:8]))
+                    enabled_policy_rules.append("\"%s\" jump update-rule-%s-table" % (ruleId, ruleId))
 
             file.write(nftables_util.chain_create_cmd(chain, "ip", None, "wan-routing") + "\n")
             file.write(nftables_util.chain_rules_cmds(chain, "ip", None, "wan-routing") + "\n")
             file.write("\n")
 
-        file.write("add rule ip wan-routing update-rule-table dict sessions ct id wan_rule_id long_string vmap { %s }\n" % (",".join(enabled_policy_rules)))
+        #How can we get this working with a vmap?
+        #for now we have to compare each wan_rule_id against the dict sessions table to figure out what verdict we will run (does vmap do this internally anyway?)
+        #file.write("add rule ip wan-routing update-rule-table dict sessions ct id wan_rule_id long_string vmap { %s }\n" % (",".join(enabled_policy_rules)))
+        for pol_rule in enabled_policy_rules:
+            file.write("add rule ip wan-routing update-rule-table dict sessions ct id wan_rule_id long_string %s\n" % pol_rule)
+
 
         for intf in interfaces:
             if enabled_wan(intf):

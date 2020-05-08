@@ -819,12 +819,12 @@ def clean_rule_actions(parent, array, tableName=None):
                     item['logs'] = [
                         {
                             "type": "NFLOG",
-                            "prefix": "{\'type\':\'rule\',\'table\':\'wan-routing\',\'chain\':\'%s\',\'ruleId\':%s,\'action\':\'WAN_POLICY\',\'policy\':%d} " % (parent.get('name'), item.get('ruleId'), action.get('policy')),
+                            "prefix": "{\'type\':\'rule\',\'table\':\'wan-routing\',\'chain\':\'%s\',\'ruleId\':\'%s\',\'action\':\'WAN_POLICY\',\'policy\':\'%s\'} " % (parent.get('name'), item.get('ruleId'), action.get('policy')),
                         },
                         {
                             "type": "DICT",
                             "field": "wan_rule_id",
-                            "field_type": "INT",
+                            "field_type": "long_string",
                             "value": "%s" % item.get('ruleId'),
                         }
                     ]

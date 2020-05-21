@@ -476,9 +476,9 @@ class RouteManager(Manager):
             file.write(nftables_util.chain_rules_cmds(chain, "ip", None, "wan-routing") + "\n")
             file.write("\n")
 
-        #How can we get this working with a vmap?
-        #for now we have to compare each wan_rule_id against the dict sessions table to figure out what verdict we will run (does vmap do this internally anyway?)
-        #file.write("add rule ip wan-routing update-rule-table dict sessions ct id wan_rule_id long_string vmap { %s }\n" % (",".join(enabled_policy_rules)))
+        # MFW-906 - Replace Rule/Policy IDs with GUIDs
+        # Previously these were added using a vmap of rule IDs to jump to the proper policy rule
+        # 
         for pol_rule in enabled_policy_rules:
             file.write("add rule ip wan-routing update-rule-table dict sessions ct id wan_rule_id long_string %s\n" % pol_rule)
 

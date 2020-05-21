@@ -438,6 +438,9 @@ class RouteManager(Manager):
         file.write("\n")
         file.write("add chain ip wan-routing route-via-cache\n")
         file.write("\n")
+        # MFW-906 Write an empty cc-wan-rules chain by default
+        file.write("add chain ip wan-routing cc-wan-rules\n")
+        file.write("\n")
 
         wan = settings['wan']
         policies = wan.get('policies')
@@ -486,6 +489,7 @@ class RouteManager(Manager):
 
         file.write("add chain ip wan-routing wan-routing-entry\n")
         file.write("add rule ip wan-routing wan-routing-entry jump route-via-cache\n")
+        file.write("add rule ip wan-routing wan-routing-entry jump cc-wan-rules\n")
         file.write("add rule ip wan-routing wan-routing-entry jump user-wan-rules\n")
         file.write("add rule ip wan-routing wan-routing-entry counter\n")
         file.write("add rule ip wan-routing wan-routing-entry log prefix \"{\'type\':\'rule\',\'table\':\'wan-routing\',\'chain\':\'wan-routing-entry\',\'ruleId\':\'-2\',\'action\':\'WAN_POLICY\',\'policy\':\'-2\'}\" group 0 jump route-to-default-wan\n")

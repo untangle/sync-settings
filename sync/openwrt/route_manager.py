@@ -226,6 +226,15 @@ class RouteManager(Manager):
         file.write("/etc/config/ifdown.d/10-default-route")
         file.write("\n\n")
 
+        # Enable/Disable router advertisements for IPv6
+        interfaces = settings.get('network').get('interfaces')
+        for intf in interfaces:
+            if intf.get('enabled'):
+                if intf.get('routerAdvertisements'):
+                    file.write("echo 1 > /proc/sys/net/ipv6/conf/%s/accept_ra || true\n" % intf.get('device'))
+                else:
+                    file.write("echo 0 > /proc/sys/net/ipv6/conf/%s/accept_ra || true\n" % intf.get('device'))
+
         wan = settings['wan']
         active_policy_ids = []
         policy_chains = wan.get('policy_chains')
@@ -497,6 +506,8 @@ class RouteManager(Manager):
 
         file.write("\n")
         file.write("add chain ip wan-routing wan-routing-prerouting { type filter hook prerouting priority -25 ; }\n")
+        # MFW-948: Check if the packet SRC_TYPE mark is a WAN type, then just return from wan-routing-prerouting
+        file.write("add rule ip wan-routing wan-routing-prerouting mark and 0x03000000 == 0x01000000 return\n")
         file.write("add rule ip wan-routing wan-routing-prerouting mark and 0x0000ff00 != 0 return\n")
         file.write("add rule ip wan-routing wan-routing-prerouting fib daddr type local return\n")
         file.write("add rule ip wan-routing wan-routing-prerouting ct state new jump wan-routing-entry\n")

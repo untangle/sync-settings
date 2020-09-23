@@ -237,6 +237,10 @@ def condition_limit_rate_expression(value, op, rate_unit):
     else:
         return "limit rate over %d%s" % (rate_int, get_limit_rate_unit_string(rate_unit))
 
+def condition_vlan_tag_id_expression(value, op):
+    """Generic helper for vlan tag id expressions"""
+    return "ether type vlan vlan id %s %s" % (op, value)
+
 def condition_expression(condition, family, ip_protocol=None):
     """Build nft expressions from the JSON condition object"""
     condition = sanitize_condition(condition)
@@ -411,6 +415,9 @@ def condition_expression(condition, family, ip_protocol=None):
     elif condtype == "LIMIT_RATE":
         check_operation(op, [">", "<"])
         return condition_limit_rate_expression(value, op, unit)
+    elif condtype == "VLAN_TAG_ID":
+        check_operation(op, ["==", "!="])
+        return condition_vlan_tag_id_expression(value, op)
     raise Exception("Unsupported condition type " + condtype + " " + str(condition.get('ruleId')))
 
 def conditions_expression(conditions, family):

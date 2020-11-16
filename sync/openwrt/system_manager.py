@@ -282,6 +282,7 @@ class SystemManager(Manager):
         file.write("## Auto Generated\n")
         file.write("## DO NOT EDIT. Changes will be overwritten.\n")
         file.write("\n\n")
+        
         file.write("/etc/init.d/system reload\n")
         file.write("\n")
 

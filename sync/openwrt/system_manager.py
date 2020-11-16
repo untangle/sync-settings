@@ -28,7 +28,7 @@ class SystemManager(Manager):
         registrar.register_file(self.wizard_status_filename, "restart-pyconnector", self)
         registrar.register_file(self.reload_system_filename, "startup-scripts", self)
         registrar.register_file(self.cron_filename, "restart-cron", self)
-        registrar.register_file(self.nic_setter_filename, "startup-scripts", self)
+        registrar.register_file(self.nic_setter_filename, "restart-nic-setting", self)
 
     def validate_settings(self, settings_file):
         """validates settings"""

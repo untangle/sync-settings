@@ -16,4 +16,4 @@ sync.registrar.register_operation("restart-cron", [""], ["/etc/init.d/cron stop 
 
 sync.registrar.register_operation("startup-scripts", [""], ["/etc/init.d/startup boot"], 40, None)
 
-sync.registrar.register_operation("restart-nic-setting", [""], ["/etc/config/startup.d/060-nic-settings"], 30, None)
+sync.registrar.register_operation("restart-nic-setting", [""], ["/etc/config/startup.d/060-nic-settings"], 30, 'startup-scripts')

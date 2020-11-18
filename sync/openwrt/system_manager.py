@@ -293,7 +293,12 @@ class SystemManager(Manager):
         print("SystemManager: Wrote %s" % filename)
 
     def write_nic_setter(self, interfaces, prefix):
-        """Write the NIC speed/duplex and autoneg settings"""
+        """
+        Write the NIC speed/duplex and autoneg settings
+        
+        :param interfaces: list of interface objects
+        :param prefix: filename prefix
+        """
         filename = prefix + self.nic_setter_filename
         file_dir = os.path.dirname(filename)
         if not os.path.exists(file_dir):

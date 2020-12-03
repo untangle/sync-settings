@@ -9,7 +9,9 @@ class FreeRadiusManager(Manager):
         registrar.register_file(self.config_file, "restart-networking", self)
 
     def sync_settings(self, settings_file, prefix, delete_list):
-       self.update_freeradius_server_config(prefix + self.config_file)
+        if not os.path.exists(prefix + self.config_dir):
+            os.makedirs(prefix + self.config_dir)
+        self.update_freeradius_server_config(prefix + self.config_file)
 
     def update_freeradius_server_config(self, configfile):
         os.system("sed 's/#\tradutmp/\tradutmp/g' " + configfile + ">" + configfile + ".bak")

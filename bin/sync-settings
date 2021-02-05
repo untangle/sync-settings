@@ -47,17 +47,15 @@ class Options(object):
 
     def __init__(self):
         self.settings_file_names = []
-        self.isWaf = False
         if os.path.isfile('/etc/debian_version'):
             self.os_name = 'debian'
             if os.path.isdir('/ModSecurity-nginx'):
-                self.os_name = 'debian_waf'
-                self.isWaf = True
+                self.os_name = 'nginx'
         elif os.path.isfile('/etc/openwrt_version'):
             self.os_name = 'openwrt'
         if self.os_name == 'openwrt':
             self.default_settings_filename = '/etc/config/settings.json'
-        elif self.isWaf:
+        elif self.os_name == 'nginx':
             self.default_settings_filename = '/usr/share/untangle/waf/settings/settings.json'
         else:
             self.default_settings_filename = '/usr/share/untangle/settings/untangle-vm/network.js'
@@ -493,6 +491,8 @@ def main():
         import sync.debian as _
     elif opts.os_name == 'openwrt':
         import sync.openwrt as _
+    elif opts.os_name == 'nginx':
+        import sync.nginx as _
     else:
         print("\nUnknown OS: " + opts.os_name)
         cleanup(1)

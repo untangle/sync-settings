@@ -51,6 +51,7 @@ class Options(object):
         if os.path.isfile('/etc/debian_version'):
             self.os_name = 'debian'
             if os.path.isdir('/ModSecurity-nginx'):
+                self.os_name = 'debian_waf'
                 self.isWaf = True
         elif os.path.isfile('/etc/openwrt_version'):
             self.os_name = 'openwrt'

@@ -53,7 +53,7 @@ class SettingsFile:
                 # will have an idenfitier of "intrusion-prevention".
                 if base_name.startswith('settings_'):
                     id = path.pop()
-            elif SettingsFile.os_name == 'openwrt':
+            elif SettingsFile.os_name == 'openwrt' or SettingsFile.os_name == 'nginx':
                 id = base_name[0]
         return id
 

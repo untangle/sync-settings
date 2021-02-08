@@ -206,7 +206,7 @@ def copy_files(dirname):
     Copy the files from dirname into the root filesystem
     """
     global opts
-    if opts.os_name == 'debian':
+    if opts.os_name == 'debian' or opts.os_name == 'nginx':
         # First copy all the directories that do not exist
         # then copy remaining files
         # We do this to keep the original permission/ownership on directories, but

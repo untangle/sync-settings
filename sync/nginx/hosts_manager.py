@@ -23,6 +23,13 @@ class HostsManager(Manager):
         self.write_hostname_file(settings_file.settings, prefix)
         return
 
+    def create_settings(self, settings_file, prefix, delete_list, filename):
+        print("%s: Initializing settings" % self.__class__.__name__)
+        system = {}
+        system['hostName'] = "waf"
+        system['domainName'] = "example.com"
+        settings_file.settings['system'] = system
+
     def write_hostname_file(self, settings, prefix):
         if 'hostName' not in settings:
             print("ERROR: Missing hostname setting")

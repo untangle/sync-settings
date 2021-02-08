@@ -59,7 +59,7 @@ registrar.register_manager(SettingsManager())
 
 def get_version(version_filename):
     version = "0.0"
-    version_file = open(verion_filename, "r")
+    version_file = open(version_filename, "r")
     if version_file.mode == "r":
         version = version_file.read()
     else:

@@ -15,6 +15,7 @@ class SettingsManager(Manager):
     and general settings initialization
     """
     settings_filename = "/usr/share/untangle/waf/settings/current.json"
+    version_filename = "/usr/share/untangle/waf/settings/version"
 
     def initialize(self):
         """initialize this module"""
@@ -25,7 +26,8 @@ class SettingsManager(Manager):
         """creates settings"""
         print("%s: Initializing settings" % self.__class__.__name__)
 
-        settings_file.settings['version'] = 1
+        #Get version
+        settings_file.settings['version'] = get_version(self.version_filename)
 
         filename = prefix + filepath
         file_dir = os.path.dirname(filename)
@@ -54,3 +56,15 @@ class SettingsManager(Manager):
         print("%s: Wrote %s" % (self.__class__.__name__, filename))
 
 registrar.register_manager(SettingsManager())
+
+def get_version(version_filename):
+    version = "0.0"
+    version_file = open(verion_filename, "r")
+    if version_file.mode == "r":
+        version = version_file.read()
+    else:
+        print("ERROR: failed to open version file")
+
+    version_file.close()
+
+    return version

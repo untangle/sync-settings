@@ -5,6 +5,7 @@ import collections
 import json
 import os.path
 import re
+import traceback
 
 class SettingsFile:
     """

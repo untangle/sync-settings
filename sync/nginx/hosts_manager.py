@@ -16,7 +16,7 @@ class HostsManager(Manager):
     hostname_filename = "/etc/hostname"
 
     def initialize(self):
-        registrar.register_settings_file("network", self)
+        registrar.register_settings_file("settings", self)
         registrar.register_file(self.hostname_filename, "update-hostname", self)
 
     def sync_settings(self, settings_file, prefix, delete_list):

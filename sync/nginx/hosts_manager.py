@@ -31,13 +31,16 @@ class HostsManager(Manager):
         settings_file.settings['system'] = system
 
     def write_hostname_file(self, settings, prefix):
-        if 'hostName' not in settings:
+        if 'system' not in settings:
+            print("ERROR: missing system setting")
+        system=settings['system']
+        if 'hostName' not in system:
             print("ERROR: Missing hostname setting")
             return
 
-        fqdn_hostname = settings['hostName']
-        if 'domainName' in settings:
-            fqdn_hostname = fqdn_hostname + "." + settings['domainName']
+        fqdn_hostname = system['hostName']
+        if 'domainName' in system:
+            fqdn_hostname = fqdn_hostname + "." + system['domainName']
         filename = prefix + self.hostname_filename
         file_dir = os.path.dirname(filename)
         if not os.path.exists(file_dir):

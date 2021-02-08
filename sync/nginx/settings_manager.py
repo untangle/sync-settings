@@ -61,7 +61,7 @@ def get_version(version_filename):
     version = "0.0"
     version_file = open(version_filename, "r")
     if version_file.mode == "r":
-        version = version_file.read()
+        version = version_file.read().strip()
     else:
         print("ERROR: failed to open version file")
 

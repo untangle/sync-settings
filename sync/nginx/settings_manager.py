@@ -53,13 +53,10 @@ class SettingsManager(Manager):
         """santize settings sets settings to defaults that are set but not enabled"""
         print("%s: Sanitizing settings" % self.__class__.__name__)
         print("http://"+self.enabled_services_hostname+":"+self.enabled_services_port+self.enabled_services_url)
-        try:
-            response = requests.get("https://127.0.0.1:8585/api/license/enabledservices")
-        except Exception as e:
-            print("Failure to get request: " + e)
+        response = requests.get("https://127.0.0.1:8585/api/license/enabledservices")
 
         if response.status_code != 200:
-            print("Getting enabled services failed")
+            print("Getting enabled services failed")  
         
         current_services = response.json()
 

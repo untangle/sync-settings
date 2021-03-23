@@ -55,7 +55,7 @@ class SettingsManager(Manager):
         print("http://"+self.enabled_services_hostname+":"+self.enabled_services_port+self.enabled_services_url)
         try:
             response = requests.get("https://127.0.0.1:8585/api/license/enabledservices")
-        except Exception e:
+        except Exception as e:
             print("Failure to get request: " + e)
 
         if response.status_code != 200:

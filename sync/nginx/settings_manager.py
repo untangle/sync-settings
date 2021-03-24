@@ -58,7 +58,6 @@ class SettingsManager(Manager):
             print("Getting enabled services failed")  
         
         current_services = response.json()
-        print(current_services)
 
         # get defaults 
         if os.path.isfile(self.default_filename):
@@ -70,8 +69,6 @@ class SettingsManager(Manager):
             nginx_services = services.get_nginx_services()
             for key in current_services.keys():
                 serviceEnabled = current_services[key]
-                print(key)
-                print(serviceEnabled)
                 if not serviceEnabled:
                     service_settings_pieces = nginx_services[key].get_settings_pieces()
                     if service_settings_pieces is not None:

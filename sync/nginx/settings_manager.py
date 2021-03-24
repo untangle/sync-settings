@@ -58,7 +58,7 @@ class SettingsManager(Manager):
             print("Getting enabled services failed")  
         
         current_services = response.json()
-        print(currentServices)
+        print(current_services)
 
         # get defaults 
         if os.path.isfile(self.default_filename):

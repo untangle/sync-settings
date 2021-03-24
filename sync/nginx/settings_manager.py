@@ -52,7 +52,6 @@ class SettingsManager(Manager):
     def sanitize_settings(self, settings_file):
         """santize settings sets settings to defaults that are set but not enabled"""
         print("%s: Sanitizing settings" % self.__class__.__name__)
-        """
         response = requests.get("https://127.0.0.1:8585/api/license/enabledservices")
 
         if response.status_code != 200:
@@ -78,7 +77,6 @@ class SettingsManager(Manager):
                         settings_file.settings = services.set_settings_value(settings_file.settings, service_settings_pieces, default)
         else:
             print("Defaults do not exist yet, might be creating them")
-        """
 
     def sync_settings(self, settings_file, prefix, delete_list):
         """syncs settings"""
